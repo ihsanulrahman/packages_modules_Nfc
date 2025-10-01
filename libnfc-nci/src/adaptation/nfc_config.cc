@@ -66,8 +66,20 @@ std::string findConfigPath() {
       android::base::GetProperty("ro.boot.product.hardware.sku", "") + ".conf");
   if (!f_path.empty()) return f_path;
 
-  // load default file if the desired file not found.
-  return searchConfigPath("libnfc-nci.conf");
+  if (std::filesystem::exists("/dev/nq-nci")) {
+    f_path = searchConfigPath("libnfc-nci-NXP.conf");
+  }
+  else if (std::filesystem::exists("/dev/st21nfc")) {
+    f_path = searchConfigPath("libnfc-nci-STM.conf");
+  }
+
+  // Fallback if no config found, or if searchConfigPath failed, use default
+  if (f_path.empty()) {
+    f_path = searchConfigPath("libnfc-nci.conf");
+  }
+
+  return f_path;
+
 }
 
 }  // namespace

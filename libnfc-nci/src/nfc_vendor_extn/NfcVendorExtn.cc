@@ -92,7 +92,19 @@ namespace {
     if (!f_path.empty()) return f_path;
 
     // load default file if the desired file not found.
-    return searchLibPath("libnfc_vendor_extn.so");
+    if (std::filesystem::exists("/dev/st21nfc")) {
+      f_path = searchLibPath("libnfc_vendor_extn_st.so");
+    }
+    else if(std::filesystem::exists("/dev/nq-nci")){
+      f_path = searchLibPath("libnfc_vendor_extn_nxp.so");
+    }
+
+    // Fallback if nothing found or lib missing
+    if (f_path.empty()) {
+      f_path = searchLibPath("libnfc_vendor_extn.so");
+    }
+
+    return f_path;
   }
 }  // namespace
 
